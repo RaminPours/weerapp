@@ -20,11 +20,11 @@ export default function Weer() {
       const { latitude, longitude, name, country } = g.results[0]
 
       // Haal huidig weer op
-      const weerRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code&timezone=auto`)
+      const weerRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m`)
       const w = await weerRes.json()
 
       const temp = Math.round(w.current.temperature_2m) + "°C"
-      const code = w.current.weather_code
+      const code = w.current
 
       // wmo codes van open-meteo
       const omschrijving = {
