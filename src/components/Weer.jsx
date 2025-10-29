@@ -1,81 +1,77 @@
-import { useState } from 'react'
-import './Weer.css'
-import searchIcon from '../assets/search.png'
-import rain from '../assets/rain.png'
-import cloudy from '../assets/cloudy.png'
-import sunny from '../assets/sun.png'
-import thunder from '../assets/thunder.png'
-import weer from '../assets/weer.png'
-import snow from '../assets/snow.png'
-import { cities } from '../data/cities'
+import { useState } from "react"
+import "./Weer.css"
 
-const Weer = () => {
-  const [input, setInput] = useState('')
-  const [stad, setStad] = useState(cities[0]) 
-  const [error, setError] = useState('')
+export default function Weer() {
+  const [stad, setStad] = useState("")
+  const [weer, setWeer] = useState("")
+  const [fout, setFout] = useState("")
 
-  // Functie om de input te updaten
-  function changeCity(e) {
-    setInput(e.target.value)
-    setError('')
-  }
+  async function zoekWeer() {
+    if (!stad.trim()) return setFout("Typ een stad.")
 
-  // Functie om de stad te zoeken
-  function zoekStad() {
-    const gevonden = cities.find((c) => c.locatie.toLowerCase() === input.trim().toLowerCase())
-    if (gevonden) {
-      setStad(gevonden)
-    } else {
-      setError(`Geen gegevens gevonden`)
+    try {
+      setFout("")
+
+      // Zoek coördinaten
+      const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(stad)}&count=1&language=nl&format=json`)
+      const g = await geoRes.json()
+
+      if (!g.results?.length) return setFout("Stad niet gevonden.")
+      const { latitude, longitude, name, country } = g.results[0]
+
+      // Haal huidig weer op
+      const weerRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code&timezone=auto`)
+      const w = await weerRes.json()
+
+      const temp = Math.round(w.current.temperature_2m) + "°C"
+      const code = w.current.weather_code
+
+      // wmo codes van open-meteo
+      const omschrijving = {
+        0: "Helder ",
+        1: "Zonnig 🌞",
+        2: "Deels bewolkt",
+        3: "bewolkt ☁",
+        61: "Regen 🌧",
+        71: "Sneeuw 🌨",
+        80: "Buien ☔",
+        95: "Onweer ⚡",
+      }[code] ?? "Onbekend"
+
+      setWeer({ temp, omschrijving, locatie: `${name}, ${country}` })
+    } catch (error) {
+      console.error(error)
+      setFout("Kon geen gegevens ophalen.")
     }
   }
 
-  // Functie om het juiste icoon te krijgen
-  function getIcon(icons) {
-    const s = icons.toLowerCase()
-    if (s.includes('regen')) return rain
-    if (s.includes('sneeuw')) return snow
-    if (s.includes('bliksem')) return thunder
-    if (s.includes('zonnig')) return sunny
-    return cloudy
+  function toets(e) {
+    if (e.key === "Enter") zoekWeer()
   }
 
   return (
-    <div className='weer'>
-      <div className='searchbar'>
-        <input
-          type='text'
-          placeholder='Zoek een stad...'
-          value={input}
-          onChange={changeCity}
-          onKeyDown={zoekStad}
-        />
-        <img
-          src={searchIcon}
-          onClick={zoekStad}
-          className='search-icon'
-        />
-      </div>
+    <div className="weer">
+      <h1>Het weer</h1>
+      <input
+        placeholder="Typ een stad..."
+        value={stad}
+        onChange={(e) => setStad(e.target.value)}
+        onKeyDown={toets}
+        className="input"
+      />
+      <button 
+      onClick={zoekWeer}
+      className="search"
+      >Zoek</button>
 
-      {<p style={{ color: 'red', fontSize: '22px' }}>{error}</p>}
-
-      <img src={getIcon(stad.weersomstandigheden)} className='weer-icon' />
-      <p className='temp'>{stad.temperatuur}</p>
-      <p className='location'>{stad.locatie}</p>
-
-      
-      <div className='details'>
-        <img src={weer} className='detail-icon' />
-        <p className='detail'>Weersomstandigheden: {stad.weersomstandigheden}</p>
-
-        <img src={cloudy} className='detail-icon' />
-        <p className='detail'>Bewolking: {stad.bewolking}</p>
-        
-        <img src={sunny} className='detail-icon' />
-        <p className='detail'>Zon: {stad.zon}</p>
-      </div>
+      {fout && <p style={{ color: "red", fontSize: "22px" }}>{fout}</p>}
+      {weer && (
+        <div className="info">
+          <h2>{weer.locatie}</h2>
+          <p>{weer.temp}</p>
+          <p>{weer.omschrijving}</p>
+        </div>
+      )}
     </div>
   )
 }
-
-export default Weer
