@@ -36,7 +36,7 @@ export default function Weer() {
         71: "Sneeuw 🌨",
         80: "Buien ☔",
         95: "Onweer ⚡",
-      }[code] ?? "Onbekend"
+      }[code] ?? "Onbekend weertype" 
 
       setWeer({ temp, omschrijving, locatie: `${name}, ${country}` })
     } catch (error) {
