@@ -3,7 +3,7 @@
     place-self: center;
     padding: 120px;
     border-radius: 10px;
-    background-image: linear-gradient(45deg, #a5b3d6b7, #4f0ae4a4);
+    background-image: linear-gradient(45deg, #a5b3d6b7, #4f00f881);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -33,7 +33,7 @@ h1{
     color: rgb(48, 5, 148);
     margin-bottom: 40px;
     font-size: 50px;
-    font-family: 'sans-serif;
+    font-family: 'sans-serif';
 }
 
 .info{
