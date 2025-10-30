@@ -13,7 +13,7 @@ export default function Weer() {
       setFout("")
 
       // Zoek coördinaten
-      const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(stad)}&count=1&language=nl&format=json`)
+      const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${(stad)}&count=1&language=nl&format=json`)
       const g = await geoRes.json()
 
       if (!g.results?.length) return setFout("Stad niet gevonden.")
@@ -28,9 +28,9 @@ export default function Weer() {
 
       // wmo codes van open-meteo
       const omschrijving = {
-        0: "Helder ",
+        0: "Helder 🌈",
         1: "Zonnig 🌞",
-        2: "Deels bewolkt",
+        2: "Deels bewolkt ⛅",
         3: "bewolkt ☁",
         61: "Regen 🌧",
         71: "Sneeuw 🌨",
